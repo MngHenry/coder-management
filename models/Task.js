@@ -6,7 +6,6 @@ const taskSchema = mongoose.Schema(
     assignee: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "User",
-      default: "",
     },
     status: {
       type: String,
