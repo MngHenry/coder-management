@@ -5,7 +5,6 @@ const userSchema = mongoose.Schema(
     role: {
       type: String,
       enum: ["Manager", "Employee"],
-      default: "Employee",
       required: true,
     },
     isDeleted: { type: Boolean, default: false, required: true },

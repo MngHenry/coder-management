@@ -65,7 +65,6 @@ userController.getUser = async (req, res, next) => {
 userController.getTaskOfUserId = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
     const user = await User.find({ _id: id }).populate("tasksList");
     return sendResponse(
       res,

@@ -3,7 +3,11 @@ const taskSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    assignee: { type: mongoose.SchemaTypes.ObjectId, ref: "User" },
+    assignee: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "User",
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Pending", "Working", "Review", "Done", "Archive"],
