@@ -7,8 +7,6 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 
-const { AppsSharp } = require("@mui/icons-material");
-
 var app = express();
 
 app.use(logger("dev"));
