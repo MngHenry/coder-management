@@ -13,7 +13,7 @@ userController.createUser = async (req, res, next) => {
       res,
       200,
       true,
-      { user: userCreated },
+      { users: userCreated },
       null,
       "Create user completed successfully"
     );
@@ -23,10 +23,20 @@ userController.createUser = async (req, res, next) => {
 };
 // get all users
 userController.getUser = async (req, res, next) => {
+  const allowedFilter = ["id", "name"];
   try {
-    let { page, limit } = req.query;
+    let { page, limit, ...filterQuery } = req.query;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 50;
+
+    const filterKeys = Object.keys(filterQuery);
+
+    filterKeys.forEach((key) => {
+      if (!allowedFilter.includes(key)) {
+        throw new AppError(401, `Query ${key} is not allowed`);
+      }
+      if (!filterQuery[key]) delete filterKeys[key];
+    });
     //mongoose query
     const users = await User.find()
       .sort({ createdAt: -1 })
@@ -50,6 +60,25 @@ userController.getUser = async (req, res, next) => {
     next(error);
   }
 };
+
+//get task of userId
+userController.getTaskOfUserId = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) throw new Error("Invalid ID");
+    const user = await User.find({ _id: id }).populate("tasksList");
+    return sendResponse(
+      res,
+      200,
+      true,
+      { users: [...user] },
+      null,
+      "get information completed successfully"
+    );
+  } catch (error) {
+    next(error);
+  }
+};
 //update user role
 userController.updateUser = async (req, res, next) => {
   try {
@@ -66,7 +95,7 @@ userController.updateUser = async (req, res, next) => {
       res,
       200,
       true,
-      { user: user },
+      { users: user },
       null,
       "update user completed successfully"
     );
@@ -89,7 +118,7 @@ userController.deleteUser = async (req, res, next) => {
       res,
       200,
       true,
-      { user: user },
+      { users: user },
       null,
       "deleted user completed successfully"
     );

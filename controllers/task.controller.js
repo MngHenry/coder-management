@@ -52,18 +52,19 @@ taskController.getTask = async (req, res, next) => {
   }
 };
 
-//get tasks of userId
-taskController.getTaskOfUserId = async (req, res, next) => {
+//get taskById
+taskController.getTaskById = async (req, res, next) => {
   try {
-    const { userId } = req.params;
-
-    const tasks = Task.find({ assignee: { _id: userId } });
+    const { id } = req.params;
+    const task = await Task.findById({ _id: id });
+    if (!task || Object.keys(task).length === 0)
+      throw new AppError(404, "not found this task");
     return sendResponse(
       res,
       200,
       true,
       {
-        tasks: tasks,
+        tasks: task,
       },
       null,
       "get list completed successfully"
@@ -77,7 +78,15 @@ taskController.getTaskOfUserId = async (req, res, next) => {
 taskController.updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { assignee } = req.body;
+    const { assignee, status } = req.body;
+    if (status === "Archive") {
+      const checkStatus = await Task.findById({ _id: id });
+      if (checkStatus.status === "Done")
+        throw new AppError(
+          401,
+          `Task already Done. Cannot reach the Archive status `
+        );
+    }
     if (assignee) {
       if (!mongoose.isValidObjectId(assignee))
         throw new Error("Invalid userId");
@@ -93,7 +102,7 @@ taskController.updateTask = async (req, res, next) => {
       res,
       200,
       true,
-      { task: task },
+      { tasks: task },
       null,
       "update task completed successfully"
     );
@@ -117,7 +126,7 @@ taskController.deleteTask = async (req, res, next) => {
       res,
       200,
       true,
-      { task: task },
+      { tasks: task },
       null,
       "deleted task completed successfully"
     );
